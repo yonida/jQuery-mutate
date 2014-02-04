@@ -1,4 +1,4 @@
-
+(function($){
 mutate_event_stack = [
 			{
 				name: 'width',
@@ -120,3 +120,4 @@ mutate_event_stack = [
 				}
 			}
 		];
+})(jQuery);
