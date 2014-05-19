@@ -1,6 +1,6 @@
 <script src="http://www.google.com/jsapi"></script> <script> google.load("jquery",'1.7'); google.load("jqueryui", "1"); </script>
-<script src="mutate.events.js"></script>
-<script src="mutate.min.js"></script>
+<script src="js/events.min.js"></script>
+<script src="js/mutate.min.js"></script>
 <script>
 	
 	
@@ -25,7 +25,7 @@ $(function() {
         $('#shower').text('Element is now visible:'+ iii++);
     });
 
-    //illustration purpuso onely
+    //illustration purpuso only
     $('#subm3').click(function() {
 		$('#my1').stop(true,true).css({width:300,height:100}).animate({width: 500,height:500},1000);
 	 });
