@@ -3,17 +3,21 @@
  * Licensed under the MIT license
  * http://www.opensource.org/licenses/mit-license.php
  * Date: 2014-02-04
- */ 
+ */
+ 
 ;
 (function ($) {
     mutate = {
-        speed: 1,
+        active: false,
+        speed: 30,
         event_stack: mutate_event_stack,
         stack: [],
         events: {},
+
         add_event: function (evt) {
             mutate.events[evt.name] = evt.handler;
         },
+
         add: function (event_name, selector, callback, false_callback) {
             mutate.stack[mutate.stack.length] = {
                 event_name: event_name,
@@ -21,29 +25,49 @@
                 callback: callback,
                 false_callback: false_callback
             }
+        },
+
+        // Start tracking
+        doWork: function() {
+            if (mutate.event_stack != 'undefined' && mutate.event_stack.length) {
+                $.each(mutate.event_stack, function (j, k) {
+                    mutate.add_event(k);
+                });
+            }
+            mutate.event_stack = [];
+            $.each(mutate.stack, function (i, n) {
+                $(n.selector).each(function (a, b) {
+                    if (mutate.events[n.event_name](b) === true) {
+                        if (n['callback']) n.callback(b, n);
+                    } else {
+                        if (n['false_callback']) n.false_callback(b, n)
+                    }
+                })
+            });
+            if (mutate.active) {
+                setTimeout(mutate.doWork, mutate.speed);
+            }
+        },
+
+        // Remove all events
+        reset: function() {
+            mutate.stack = [];
+            mutate.events = {};
+            mutate.event_stack = mutate_event_stack;
+            return mutate;
+        },
+
+        stop: function() {
+            mutate.active = false;
+            return mutate;
+        },
+
+        start: function() {
+            mutate.active = true;
+            mutate.doWork();
         }
     };
 
-    function reset() {
-        var parent = mutate;
-        if (parent.event_stack != 'undefined' && parent.event_stack.length) {
-            $.each(parent.event_stack, function (j, k) {
-                mutate.add_event(k);
-            });
-        }
-        parent.event_stack = [];
-        $.each(parent.stack, function (i, n) {
-            $(n.selector).each(function (a, b) {
-                if (parent.events[n.event_name](b) === true) {
-                    if (n['callback']) n.callback(b, n);
-                } else {
-                    if (n['false_callback']) n.false_callback(b, n)
-                }
-            })
-        })
-        setTimeout(reset, mutate.speed);
-    }
-    reset();
     $.fn.extend({
         mutate: function () {
             var event_name = false,
@@ -58,6 +82,9 @@
                 event_name = n;
                 mutate.add(event_name, selector, callback, false_callback);
             });
+            if (!mutate.active) {
+                mutate.start();
+            }
             return this;
         }
     });
